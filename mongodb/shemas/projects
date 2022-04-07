@@ -1,0 +1,1275 @@
+use insy;
+
+//-------------------------------------------------------------------------------------------
+
+//  schema: projects
+
+//-------------------------------------------------------------------------------------------
+
+db.getCollection("projects").drop();
+
+
+
+db.createCollection("projects", {
+
+    validationLevel: "strict",
+
+    validationAction: "error",
+
+    validator: {
+
+        $jsonSchema: {
+
+            bsonType: "object",
+
+            required: [
+
+                "title",
+
+                "projectType",
+
+                "projectState",
+
+                "description",
+
+                "projectBegin",
+
+                "isFWFSponsered",
+
+                "isFFGSponsered",
+
+                "isEUSponsered",
+
+                "isSmallProject",
+
+                "subprojects",
+
+                "fundings"
+
+            ],
+
+            additionalProperties: true,
+
+            properties: {
+
+                title: {
+
+                    bsonType: "string",
+
+                    minLength: 3,
+
+                    maxLength: 100,
+
+                    description: "the title of the project"
+
+                },
+
+                projectType: {
+
+                    enum: [
+
+                        "REQUEST_FUNDING_PROJECT",
+
+                        "RESEARCH_FUNDING_PROJECT",
+
+                        "MANAGEMENT_PROJECT"
+
+                    ],
+
+                    description: "enum to describe projecttypes"
+
+                },
+
+                projectState: {
+
+                    enum: [
+
+                        "CREATED",
+
+                        "IN_APPROVEMENT",
+
+                        "APPROVED"
+
+                    ],
+
+                    description: "enum to describe the project state"
+
+                },
+
+                description: {
+
+                    bsonType: "string",
+
+                    minLength: 0,
+
+                    maxLength: 4000,
+
+                    description: "a short description of the project"
+
+                },
+
+                projectBegin: {
+
+                    bsonType: "date"
+
+                },
+
+                isFWFSponsered: {
+
+                    bsonType: "bool",
+
+                    description: "indicates if the project is sponsered by the fwf"
+
+                },
+
+                isFFGSponsered: {
+
+                    bsonType: "bool",
+
+                    description: "indicates if the project is sponsered by the ffg"
+
+                },
+
+                isEUSponsered: {
+
+                    bsonType: "bool",
+
+                    description: "indicates if the project is sponsered by the eu"
+
+                },
+
+                isSmallProject: {
+
+                    bsonType: "bool",
+
+                    description: "indicates that the funding of the project don't exceeds 5000 Euro"
+
+                },
+
+                subprojects: {
+
+                    bsonType: "array",
+
+                    items: {
+
+                        bsonType: "object",
+
+                        required: ["_id", "title"],
+
+                        additionalProperties: false,
+
+                        properties: {
+
+                            _id: {
+
+                                bsonType: "objectId"
+
+                            },
+
+                            title: {
+
+                                bsonType: "string",
+
+                                minLength: 3,
+
+                                maxLength: 100,
+
+                                description: "the description of the subproject"
+
+                            }
+
+                        }
+
+                    }
+
+                },
+
+                fundings: {
+
+                    bsonType: "array",
+
+                    items: {
+
+                        bsonType: "object",
+
+                        required: ["_id", "debitorName", "amount"],
+
+                        additionalProperties: false,
+
+                        properties: {
+
+                            _id: {
+
+                                bsonType: "objectId"
+
+                            },
+
+                            debitorName: {
+
+                                bsonType: "string",
+
+                                minLength: 5,
+
+                                maxLength: 100
+
+                            },
+
+                            amount: {
+
+                                bsonType: "int",
+
+                                minimum: 0
+
+                            }
+
+                        }
+
+                    }
+
+               }
+
+            }
+
+        }
+
+    }
+
+});
+
+
+
+//-------------------------------------------------------------------------------------------
+
+//  insert statements: projects
+
+//-------------------------------------------------------------------------------------------
+
+
+
+db.projects.insertMany([
+
+    //1. Project
+
+    {
+
+        _id: ObjectId("5c2dfad77d1c229482d0dd9a"),
+
+        title: "Produktionsplanungssysteme",
+
+        projectType: "REQUEST_FUNDING_PROJECT",
+
+        projectState: "APPROVED",
+
+        description: "Projekt zur Planung von Produktionsplanungssystemen",
+
+        projectBegin: new Date(2012, 6, 23),
+
+        isFWFSponsered: true,
+
+        isFFGSponsered: false,
+
+        isEUSponsered: false,
+
+        isSmallProject: false,
+
+        subprojects: [{
+
+            _id: ObjectId("874632936283294250329324"),
+
+            title: "ERP Sap"
+
+        }, {
+
+            _id: ObjectId("874632936283294250329325"),
+
+            title: "ERP Dynamics"
+
+        }
+
+        ],
+
+        fundings: [{
+
+            _id: ObjectId("874632936283294250329326"),
+
+            debitorName: "SAP Microsystems inc.",
+
+            amount: 100000
+
+        }]
+
+    },
+
+    //2.Project
+
+    {
+
+        _id: ObjectId("5c2dfad77d1c229482d0dd9b"),
+
+        title: "Generische Programmierung",
+
+        projectType: "REQUEST_FUNDING_PROJECT",
+
+        projectState: "APPROVED",
+
+        description: "Projekt zur Erforschung der Prinzipien der generischen Programmierung",
+
+        projectBegin: new Date(2010, 3, 7),
+
+        isFWFSponsered: false,
+
+        isFFGSponsered: false,
+
+        isEUSponsered: true,
+
+        isSmallProject: false,
+
+        subprojects: [{
+
+            _id: ObjectId("874632936283294250329001"),
+
+            title: "Prinzipien der Programmierung im generischen Bereich"
+
+        }, {
+
+            _id: ObjectId("874632936283294250329002"),
+
+            title: "Vorteilte und Nachteile der generischen Programmierung"
+
+        }
+
+        ],
+
+        fundings: [{
+
+            _id: ObjectId("874632936283294250329111"),
+
+            debitorName: "Oracle Microsystems inc.",
+
+            amount: 300000
+
+        }]
+
+    },
+
+    //3.Project
+
+    {
+
+        _id: ObjectId("5c2dfad77d1c229482d0dd9c"),
+
+        title: "Transaktionsverfahren in NoSQL Datenbanken",
+
+        projectType: "RESEARCH_FUNDING_PROJECT",
+
+        projectState: "APPROVED",
+
+        description: "Projekt zur Erforschung des Transaktionsverfahrens von NoSQL Datenbanken",
+
+        projectBegin: new Date(2017, 9, 10),
+
+        isFWFSponsered: true,
+
+        isFFGSponsered: true,
+
+        isEUSponsered: false,
+
+        isSmallProject: false,
+
+        subprojects: [{
+
+            _id: ObjectId("874632936283294250329003"),
+
+            title: "Transaktionsverfahren - MVCC"
+
+        }
+
+        ],
+
+        fundings: [{
+
+            _id: ObjectId("874632936283294250329111"),
+
+            debitorName: "Oracle Microsystems inc.",
+
+            amount: 300000
+
+        }]
+
+    },
+
+    //4.Project
+
+    {
+
+        _id: ObjectId("5c2dfad77d1c229482d0dd9d"),
+
+        title: "Finite Elemente",
+
+        projectType: "RESEARCH_FUNDING_PROJECT",
+
+        projectState: "APPROVED",
+
+        description: "Projekt zur Erforschung der Methoden der Finiten Elemente in der Computersimulation",
+
+        projectBegin: new Date(2017, 9, 10),
+
+        isFWFSponsered: false,
+
+        isFFGSponsered: false,
+
+        isEUSponsered: true,
+
+        isSmallProject: false,
+
+        subprojects: [{
+
+            _id: ObjectId("874632936283294250329004"),
+
+            title: "Finite Elemente - Mathematische Simulation"
+
+        }, {
+
+            _id: ObjectId("874632936283294250329005"),
+
+            title: "Finite Elemente - Numerische Algorithmen"
+
+        }, {
+
+            _id: ObjectId("874632936283294250329006"),
+
+            title: "Finite Elemente - Computersimulation"
+
+        }
+
+        ],
+
+        fundings: [{
+
+            _id: ObjectId("874632936283294250329114"),
+
+            debitorName: "Sun Microsystems inc.",
+
+            amount: 500000
+
+        }, {
+
+            _id: ObjectId("874632936283294250329115"),
+
+            debitorName: "Simens Microsystems inc.",
+
+            amount: 400000
+
+        }, {
+
+            _id: ObjectId("874632936283294250329116"),
+
+            debitorName: "TU Wien",
+
+            amount: 150000
+
+        }]
+
+    },
+
+    //5.Project
+
+    {
+
+        _id: ObjectId("5c2dfad77d1c229482d0dd9e"),
+
+        title: "Motorensimulation",
+
+        projectType: "MANAGEMENT_PROJECT",
+
+        projectState: "CREATED",
+
+        description: "Projekt zur Erforschung der Methoden der Motorensimulation",
+
+        projectBegin: new Date(2018, 10, 24),
+
+        isFWFSponsered: true,
+
+        isFFGSponsered: true,
+
+        isEUSponsered: false,
+
+        isSmallProject: false,
+
+        subprojects: [{
+
+            _id: ObjectId("874632936283294250329007"),
+
+            title: "Motorsimulation - Mathematische Methoden"
+
+        }, {
+
+            _id: ObjectId("874632936283294250329008"),
+
+            title: "Motorsimulation - Numerische Algorithmen"
+
+        }
+
+        ],
+
+        fundings: [{
+
+            _id: ObjectId("874632936283294250329114"),
+
+            debitorName: "Sun Microsystems inc.",
+
+            amount: 30000
+
+        }, {
+
+            _id: ObjectId("874632936283294250329115"),
+
+            debitorName: "Simens Microsystems inc.",
+
+            amount: 3000
+
+        }
+
+        ]
+
+    }
+
+]
+
+);
+
+//-------------------------------------------------------------------------------------------
+
+//  schema: facilities
+
+//-------------------------------------------------------------------------------------------
+
+db.getCollection("facilities").drop();
+
+
+
+db.createCollection("facilities", {
+
+     validationLevel  : "strict",
+
+     validationAction : "error",
+
+     validator : {
+
+           $jsonSchema : {
+
+                bsonType : "object",
+
+                required : [
+
+                   "_id",
+
+                   "name",
+
+                   "code",
+
+                   "projects"
+
+                ],
+
+                properties : {
+
+                     _id   : {
+
+                         bsonType : "objectId"
+
+                     },
+
+                     name : {
+
+                         bsonType  : "string",
+
+                         minLength : 3,
+
+                         maxLength : 100
+
+                     },
+
+                     code : {
+
+                         bsonType  : "string",
+
+                     },
+
+                     projects : {
+
+                        bsonType : "array",
+
+                        items : {
+
+                           bsonType : "object",
+
+                           required : ["project_id", "title"],
+
+                           properties : {
+
+                              project_id : {
+
+                                 bsonType : "objectId"
+
+                              },
+
+                              title : {
+
+                                 bsonType : "string"
+
+                              }
+
+                           }
+
+                        }
+
+                     }
+
+                }
+
+           }
+
+     }
+
+});
+
+
+
+
+
+db.getCollection("facilities").insertMany([
+
+/* 1 */
+
+{
+
+    "_id" : ObjectId("874632936283294250329002"),
+
+    "name" : "Institut für Wirtschaftsinformatik",
+
+    "code" : "123.456.231",
+
+    "projects" : [
+
+        {
+
+            "project_id" : ObjectId("5c2dfad77d1c229482d0dd9a"),
+
+            "title" : "Produktionsplanungssysteme"
+
+        }
+
+    ]
+
+},
+
+
+
+/* 2 */
+
+{
+
+    "_id" : ObjectId("874632936283294250329001"),
+
+    "name" : "Institut für Angewandte Mathematik",
+
+    "code" : "123.456.789",
+
+    "projects" : [
+
+        {
+
+            "project_id" : ObjectId("5c2dfad77d1c229482d0dd9a"),
+
+            "title" : "Produktionsplanungssysteme"
+
+        },
+
+        {
+
+            "project_id" : ObjectId("5c2dfad77d1c229482d0dd9d"),
+
+            "title" : "Finite Elemente c"
+
+        },
+
+        {
+
+            "project_id" : ObjectId("5c2dfad77d1c229482d0dd9e"),
+
+            "title" : "Motorensimulation a"
+
+        },
+
+        {
+
+            "project_id" : ObjectId("5c2dfad77d1c229482d0dd9e"),
+
+            "title" : "Motorensimulation b"
+
+        }
+
+    ]
+
+},
+
+
+
+/* 3 */
+
+{
+
+    "_id" : ObjectId("874632936283294250329003"),
+
+    "name" : "Institut für Softwareentwicklung",
+
+    "code" : "123.456.789",
+
+    "projects" : [
+
+        {
+
+            "project_id" : ObjectId("5c2dfad77d1c229482d0dd9b"),
+
+            "title" : "Generische Programmierung a"
+
+        },
+
+        {
+
+            "project_id" : ObjectId("5c2dfad77d1c229482d0dd9b"),
+
+            "title" : "Generische Programmierung b"
+
+        },
+
+        {
+
+            "project_id" : ObjectId("5c2dfad77d1c229482d0dd9c"),
+
+            "title" : "Transaktionsverfahren in NoSQL Datenbanken"
+
+        }
+
+    ]
+
+},
+
+
+
+/* 4 */
+
+{
+
+    "_id" : ObjectId("874632936283294250329007"),
+
+    "name" : "Institut für Analysis",
+
+    "code" : "123.321.789",
+
+    "projects" : [
+
+        {
+
+            "project_id" : ObjectId("5c2dfad77d1c229482d0dd9d"),
+
+            "title" : "Finite Elemente a"
+
+        },
+
+        {
+
+            "project_id" : ObjectId("5c2dfad77d1c229482d0dd9d"),
+
+            "title" : "Finite Elemente b"
+
+        }
+
+    ]
+
+}
+
+]);
+
+
+
+db.facilities.find();
+
+
+
+-- subprojects
+
+
+
+db.getCollection("subprojects").drop();
+
+
+
+db.getCollection("subprojects").insertMany([
+
+/* 1 */
+
+{
+
+    "_id" : ObjectId("874632936283294250329324"),
+
+    "title" : "ERP Sap",
+
+    "description" : "Subproject zur Bestimmung von ERP Sap",
+
+    "project_id" : ObjectId("5c2dfad77d1c229482d0dd9a"),
+
+    "appliedResearch" : 0,
+
+    "theoreticalResearch" : 0,
+
+    "focusResearch" : 100,
+
+    "facility" : {
+
+        "_id" : ObjectId("874632936283294250329002"),
+
+        "name" : "Institut für Wirtschaftsinformatik",
+
+        "code" : "123.456.231"
+
+    },
+
+    "marked" : true,
+
+    "funding" : {
+
+        "amount" : 50000.0
+
+    },
+
+    "project" : {
+
+        "_id" : ObjectId("5c2dfad77d1c229482d0dd9a"),
+
+        "title" : "Produktionsplanungssysteme"
+
+    }
+
+},
+
+
+
+/* 2 */
+
+{
+
+    "_id" : ObjectId("874632936283294250329325"),
+
+    "title" : "ERP Dynamics",
+
+    "description" : "Subproject zur Bestimmung von ERP Dynamics",
+
+    "project_id" : ObjectId("5c2dfad77d1c229482d0dd9a"),
+
+    "appliedResearch" : 20,
+
+    "theoreticalResearch" : 20,
+
+    "focusResearch" : 60,
+
+    "facility" : {
+
+        "_id" : ObjectId("874632936283294250329001"),
+
+        "name" : "Institut für Angewandte Mathematik",
+
+        "code" : "123.456.789"
+
+    },
+
+    "project" : {
+
+        "_id" : ObjectId("5c2dfad77d1c229482d0dd9a"),
+
+        "title" : "Produktionsplanungssysteme"
+
+    },
+
+    "funding" : {
+
+        "amount" : 50000.0
+
+    }
+
+},
+
+
+
+/* 3 */
+
+{
+
+    "_id" : ObjectId("874632936283294250329001"),
+
+    "title" : "Prinzipien der Programmierung im generischen Bereich",
+
+    "description" : "Subprojekt zum Bestimmung der Programmierung im generischen Bereich",
+
+    "project_id" : ObjectId("5c2dfad77d1c229482d0dd9b"),
+
+    "appliedResearch" : 20,
+
+    "theoreticalResearch" : 20,
+
+    "focusResearch" : 60,
+
+    "facility" : {
+
+        "_id" : ObjectId("874632936283294250329003"),
+
+        "name" : "Institut für Softwareentwicklung",
+
+        "code" : "123.456.789"
+
+    },
+
+    "project" : {
+
+        "_id" : ObjectId("5c2dfad77d1c229482d0dd9b"),
+
+        "title" : "Generische Programmierung"
+
+    },
+
+    "funding" : {
+
+        "amount" : 150000.0
+
+    }
+
+},
+
+/* 4 */
+
+{
+
+    "_id" : ObjectId("874632936283294250329002"),
+
+    "title" : "Vorteilte und Nachteile der generischen Programmierung",
+
+    "description" : "Subprojekt zum Bestimmung der Programmierung im generischen Bereich",
+
+    "project_id" : ObjectId("5c2dfad77d1c229482d0dd9b"),
+
+    "appliedResearch" : 0,
+
+    "theoreticalResearch" : 0,
+
+    "focusResearch" : 100,
+
+    "facility" : {
+
+        "_id" : ObjectId("874632936283294250329003"),
+
+        "name" : "Institut für Softwareentwicklung",
+
+        "code" : "123.456.789"
+
+    },
+
+    "marked" : true,
+
+    "funding" : {
+
+        "amount" : 150000.0
+
+    },
+
+    "project" : {
+
+        "_id" : ObjectId("5c2dfad77d1c229482d0dd9b"),
+
+        "title" : "Generische Programmierung"
+
+    }
+
+},
+
+
+
+/* 5 */
+
+{
+
+    "_id" : ObjectId("874632936283294250329003"),
+
+    "title" : "Transaktionsverfahren - MVCC",
+
+    "description" : "Erforschen von Transaktionsverfahren",
+
+    "project_id" : ObjectId("5c2dfad77d1c229482d0dd9c"),
+
+    "appliedResearch" : 50,
+
+    "theoreticalResearch" : 50,
+
+    "focusResearch" : 0,
+
+    "facility" : {
+
+        "_id" : ObjectId("874632936283294250329003"),
+
+        "name" : "Institut für Softwareentwicklung",
+
+        "code" : "123.456.789"
+
+    },
+
+    "project" : {
+
+        "_id" : ObjectId("5c2dfad77d1c229482d0dd9c"),
+
+        "title" : "Transaktionsverfahren in NoSQL Datenbanken"
+
+    },
+
+    "funding" : {
+
+        "amount" : 300000.0
+
+    }
+
+},
+
+
+
+/* 6 */
+
+{
+
+    "_id" : ObjectId("874632936283294250329004"),
+
+    "title" : "Finite Elemente - Mathematische Simulation",
+
+    "description" : "Erforschen von Transaktionsverfahren",
+
+    "project_id" : ObjectId("5c2dfad77d1c229482d0dd9d"),
+
+    "appliedResearch" : 50,
+
+   "theoreticalResearch" : 0,
+
+    "focusResearch" : 50,
+
+    "facility" : {
+
+        "_id" : ObjectId("874632936283294250329007"),
+
+        "name" : "Institut für Analysis",
+
+        "code" : "123.321.789"
+
+    },
+
+    "project" : {
+
+        "_id" : ObjectId("5c2dfad77d1c229482d0dd9d"),
+
+        "title" : "Finite Elemente"
+
+    },
+
+    "funding" : {
+
+        "amount" : 350000.0
+
+    }
+
+},
+
+
+
+/* 7 */
+
+{
+
+    "_id" : ObjectId("874632936283294250329005"),
+
+    "title" : "Finite Elemente - Numerische Algorithmen",
+
+    "description" : "Finite Elemente - Numerische Algorithmen",
+
+    "project_id" : ObjectId("5c2dfad77d1c229482d0dd9d"),
+
+    "appliedResearch" : 20,
+
+    "theoreticalResearch" : 60,
+
+    "focusResearch" : 20,
+
+    "facility" : {
+
+        "_id" : ObjectId("874632936283294250329007"),
+
+        "name" : "Institut für Analysis",
+
+        "code" : "123.321.789"
+
+    },
+
+    "project" : {
+
+        "_id" : ObjectId("5c2dfad77d1c229482d0dd9d"),
+
+        "title" : "Finite Elemente"
+
+    },
+
+    "funding" : {
+
+        "amount" : 350000.0
+
+    }
+
+},
+
+
+
+/* 8 */
+
+{
+
+    "_id" : ObjectId("874632936283294250329006"),
+
+    "title" : "Finite Elemente - Computersimulation",
+
+    "description" : "Finite Elemente - Computersimulation",
+
+    "project_id" : ObjectId("5c2dfad77d1c229482d0dd9d"),
+
+    "appliedResearch" : 0,
+
+    "theoreticalResearch" : 0,
+
+    "focusResearch" : 100,
+
+    "facility" : {
+
+        "_id" : ObjectId("874632936283294250329001"),
+
+        "name" : "Institut für Angewandte Mathematik",
+
+        "code" : "123.456.789"
+
+    },
+
+    "marked" : true,
+
+    "funding" : {
+
+        "amount" : 350000.0
+
+    },
+
+    "project" : {
+
+        "_id" : ObjectId("5c2dfad77d1c229482d0dd9d"),
+
+        "title" : "Finite Elemente"
+
+    }
+
+},
+
+
+
+/* 9 */
+
+{
+
+    "_id" : ObjectId("874632936283294250329007"),
+
+    "title" : "Motorsimulation - Mathematische Methoden",
+
+    "description" : "Motorsimulation - Mathematische Methoden",
+
+    "project_id" : ObjectId("5c2dfad77d1c229482d0dd9e"),
+
+    "appliedResearch" : 35,
+
+    "theoreticalResearch" : 25,
+
+    "focusResearch" : 40,
+
+    "facility" : {
+
+        "_id" : ObjectId("874632936283294250329001"),
+
+        "name" : "Institut für Angewandte Mathematik",
+
+        "code" : "123.456.789"
+
+    },
+
+    "project" : {
+
+        "_id" : ObjectId("5c2dfad77d1c229482d0dd9e"),
+
+        "title" : "Motorensimulation"
+
+    },
+
+    "funding" : {
+
+        "amount" : 16500.0
+
+    }
+
+},
+
+
+
+/* 10 */
+
+{
+
+    "_id" : ObjectId("874632936283294250329008"),
+
+    "title" : "Motorsimulation - Numerische Algorithmen",
+
+    "description" : "Motorsimulation - Numerische Algorithmen",
+
+    "project_id" : ObjectId("5c2dfad77d1c229482d0dd9e"),
+
+    "appliedResearch" : 0,
+
+    "theoreticalResearch" : 0,
+
+    "focusResearch" : 100,
+
+    "facility" : {
+
+        "_id" : ObjectId("874632936283294250329001"),
+
+        "name" : "Institut für Angewandte Mathematik",
+
+        "code" : "123.456.789"
+
+    },
+
+    "marked" : true,
+
+    "funding" : {
+
+        "amount" : 16500.0
+
+    },
+
+    "project" : {
+
+        "_id" : ObjectId("5c2dfad77d1c229482d0dd9e"),
+
+        "title" : "Motorensimulation"
+
+    }
+
+}
+
+]);

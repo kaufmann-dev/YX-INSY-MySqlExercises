@@ -1,0 +1,92 @@
+use insy;
+
+var person = {
+    lastName: "Turning",
+    contribs: ["Turing machine", "test"],
+    major: "Math"
+}
+
+db.createCollection("people", {
+    validationLevel: "strict",
+    validationAction: "error",
+    validator: {
+        $jsonSchema: {
+            bsonType: "object",
+            required: ["lastName", "contribs", "major"],
+            additionalProperties: true,
+            properties: {
+                lastName: {
+                    bsonType: "string",
+                    maxLength: 100
+                },
+                contribs: {
+                    bsonType: "array",
+                    items: {
+                        bsonType: "string"
+                    }
+                },
+                major: {
+                    enum: ["Math", "SEW", "INSY"]
+                }
+            }
+        }
+    }
+});
+
+db.people.insertOne(person);
+db.people.find();
+
+db.getCollection("league").drop();
+db.createCollection("league", {
+    validationLevel: "strict",
+    validationAction: "error",
+    validator: {
+        $jsonSchema: {
+            bsonType: "object",
+            required: ["status", "competition", "teams"],
+            additionalProperties: false
+        },
+        properties: {
+            status: {
+                enum: ["finished", "cancelled", "running"]
+            },
+            competition: {
+                bsonType: "string",
+                maxLength: 100
+            },
+            teams: {
+                bsonType: "array",
+                items: {
+                    bsonType: "object",
+                    required: ["teamType", "name", "events"],
+                    additionalProperties: false,
+                    properties: {
+                        teamType: {
+                            enum: ["homeTeam", "awayTeam"]
+                        },
+                        name: {
+                            bsonType: "string",
+                            maxLength: 100
+                        },
+                        events: {
+                            bsonType: "array",
+                            items: {
+                                bsonType: "object",
+                                required: ["eventType", "player"],
+                                additionalProperties: false,
+                                properties: {
+                                    eventType: {
+                                        enum: ["yellowCard", "redCard", "goal"]
+                                    },
+                                    player: {
+                                        bsonType: "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+});
