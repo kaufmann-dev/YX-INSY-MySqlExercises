@@ -4,7 +4,9 @@ use cddl;
 --  1. Beispiel) Constraints, DDL Statements
 -- ----------------------------------------------------------- --
 -- Legen Sie die Tabelle PRODUCER AN:
-
+drop table if exists BEVERAGES;
+drop table if exists PRODUCER;
+drop table if exists PRODUCERS;
 CREATE TABLE PRODUCER
 (
     PRODUCER_LABEL VARCHAR(100),
@@ -35,14 +37,20 @@ ALTER TABLE PRODUCERS
 -- V    Check Option on a view     Object
 
 -- der PRODUCER_LABEL soll einen NOT NULL Constraint bekommen:
-
+alter table PRODUCERS
+    modify PRODUCER_LABEL VARCHAR(100) NOT NULL;
 
 -- endregion
 
 -- region 1.3) INSERT INTO
 
 -- FÜgen Sie 3 Datensatze in die Tablle ein:
-
+INSERT INTO PRODUCERS(PRODUCER_LABEL, CODE)
+values (
+    'DJ_AIDS_HAVER', '306'
+), (
+    'MC_RETAR_DDD', '65005'
+);
 
 -- endregion
 -- ----------------------------------------------------------- --
@@ -64,16 +72,16 @@ ALTER TABLE BEVERAGES
     ADD CONSTRAINT UK_BEVERAGES_LABLE UNIQUE (LABEL);
 
 -- Fügen Sie eine Fremdschlüssel auf die PRODUCERS Tabelle ein:
--- ALTER TABLE BEVERAGES DROP PRODUCER_LABEL;
-ALTER TABLE BEVERAGES
-    ADD PRODUCER_LABEL VARCHAR(100);
+    -- ALTER TABLE BEVERAGES DROP PRODUCER_LABEL;
+    ALTER TABLE BEVERAGES
+        ADD PRODUCER_LABEL VARCHAR(100);
 
--- Schalten Sie den referentiellen Constraint  ab:
-ALTER TABLE BEVERAGES
-    ADD CONSTRAINT FK_BEVERAGES_PL FOREIGN KEY (PRODUCER_LABEL) REFERENCES PRODUCERS (PRODUCER_LABEL);
+    -- Schalten Sie den referentiellen Constraint  ab:
+    ALTER TABLE BEVERAGES
+        ADD CONSTRAINT FK_BEVERAGES_PL FOREIGN KEY (PRODUCER_LABEL) REFERENCES PRODUCERS (PRODUCER_LABEL);
 
 -- Pruefen Sie den Status der Constraints fuer die Tabelle:
-
+show create table BEVERAGES;
 
 -- endregion
 
@@ -81,10 +89,15 @@ ALTER TABLE BEVERAGES
 
 -- Legen Sie eine Sequenz und einen Trigger fuer die ID an.
 
+CREATE TRIGGER T_B_BID
+    before insert on BEVERAGES
+    for each row
+    set new.BEVERAGE_ID = UPPER(NEW.BEVERAGE_ID);
 
 -- Schalten Sie den Trigger aus und schreiben Sie die folgende Daten in
 -- die Tabelle:
 
+DROP TRIGGER IF EXISTS ID_TRIGGER;
 
 SELECT *
 FROM PRODUCERS;
@@ -229,6 +242,8 @@ WHERE ALCOHOLIC_CONTENT < 9;
 SELECT *
 FROM BEER;
 
+-- truncate table BEER;
+
 -- endregion
 
 -- ----------------------------------------------------------- --
@@ -241,20 +256,37 @@ FROM BEER;
 
 CREATE TABLE CUSTOMERS
 (
-    CUSTOMER_ID INT AUTO_INCREMENT,
-    FIRST_NAME  VARCHAR(50) DEFAULT 'MAXL'         NOT NULL,
-    LAST_NAME   VARCHAR(50) DEFAULT 'MUSTERMENSCH' NOT NULL,
+    CUSTOMER_ID INT,
+    FIRST_NAME  VARCHAR(50) DEFAULT 'MAX'         NOT NULL,
+    LAST_NAME   VARCHAR(50) DEFAULT 'MUSTERMANN'  NOT NULL,
     PRIMARY KEY (CUSTOMER_ID)
+);
+
+CREATE TABLE EMPLOYEES
+(
+    EMPLOYEE_ID INT AUTO_INCREMENT,
+    FIRST_NAME  VARCHAR(50) DEFAULT 'MAX'         NOT NULL,
+    LAST_NAME   VARCHAR(50) DEFAULT 'MUSTERMANN'  NOT NULL,
+    PRIMARY KEY (EMPLOYEE_ID)
+);
+
+insert into EMPLOYEES(FIRST_NAME, LAST_NAME)
+VALUES (
+    'David', 'Kaufmann'
+), (
+    'Elliot', 'Rodger'
 );
 
 
 -- Aktivieren Sie das AUTO_INCREMENT
--- jo
+alter table CUSTOMERS
+modify CUSTOMER_ID int auto_increment;
 
 -- Alle Employees in Customers einspielen
 INSERT INTO CUSTOMERS (CUSTOMER_ID, FIRST_NAME, LAST_NAME)
 SELECT employee_id, first_name, last_name
-FROM employees_st;
+FROM EMPLOYEES;
+
 SELECT *
 FROM CUSTOMERS;
 -- endregion
@@ -272,12 +304,15 @@ WHERE UPPER(SUBSTR(LAST_NAME, 1, 1)) = 'F';
 ALTER TABLE CUSTOMERS
     ADD JOINED_AT DATETIME DEFAULT CURRENT_TIMESTAMP
         NOT NULL;
+
 SELECT *
 FROM CUSTOMERS;
 -- Loeschen Sie alle Datensaetze
 DELETE
 FROM CUSTOMERS
 WHERE 1 = 1;
+
+TRUNCATE table CUSTOMERS;
 -- endregion
 
 -- ----------------------------------------------------------- --
@@ -324,7 +359,6 @@ CREATE TABLE CUSTOMER_HAS_ORDERS_JT(
 );
 ALTER TABLE CUSTOMER_HAS_ORDERS_JT ADD AMOUNT INT DEFAULT 1 NOT NULL;
 ALTER TABLE CUSTOMER_HAS_ORDERS_JT ADD CONSTRAINT CK_CHOJT_AMOUNT CHECK ( AMOUNT > 0 );
--- Drop TABLE CUSTOMER_HAS_ORDERS_JT;
 
 SELECT * from CUSTOMERS;
 insert into CUSTOMER_HAS_ORDERS_JT (customer_id, order_id, beverage_id, price)

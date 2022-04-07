@@ -16,7 +16,7 @@ where NOT EXISTS(select * from ROUTES_JT RJT where bruh.DISTANCE < RJT.DISTANCE)
 -- Berechne die Kreuzfahrt welche die längste Strecke zurücklegt
 -- kein min und max
 
-with Report as (select c.CRUISE_ID ID, sum(DISTANCE) DISTANCE
+with Report as (select c.CRUISE_ID, sum(rj.DISTANCE) DISTANCE
                 from CRUISES c
                          join CRUISE_HAS_ROUTES_JT chrj on c.CRUISE_ID = chrj.CRUISE_ID
                          join ROUTES_JT rj on chrj.DEPARTURE_HARBOR_ID = rj.DEPARTURE_HARBOR_ID and

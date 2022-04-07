@@ -1,3 +1,5 @@
+drop database if exists convoy;
+create database convoy;
 use convoy;
 
 CREATE TABLE CONVOYCOMPONET
@@ -89,9 +91,11 @@ FROM TRUCKS
 
 -- alle trucks die zumindest 1 waggon haben
 -- mit exists machen
+select * from WAGGONS;
+select * from TRUCKS;
 
-select DISTINCT T.ID
+select distinct T.ID
 from TRUCKS T join WAGGONS W on T.ID = W.TRUCK_ID;
 
 select *
-from TRUCKS T where EXISTS(select * from WAGGONS W where  T.ID = W.TRUCK_ID);
+from TRUCKS T where EXISTS(select * from WAGGONS W where T.ID = W.TRUCK_ID);
