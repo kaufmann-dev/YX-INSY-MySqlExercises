@@ -33,8 +33,16 @@ use restaurant;
 -- Tabellen: BRANCHES, TABLES, ORDER_ITEMS, DISHES, CUSTOMER_ORDERS
 -- User: OE
 
-
-
+with TURNOVER as (
+select x.BRANCH_ID, sum(x.PRICE_C) SUM
+from (select OIJ.TABLE_ID, T.BRANCH_ID, D.price * OIJ.AMOUNT PRICE_C
+    from DISHES D
+    join ORDER_ITEMS_JT OIJ on D.dish_id = OIJ.DISH_ID
+    join TABLES T on T.table_id = OIJ.TABLE_ID
+    join BRANCHES B on T.branch_id = B.BRANCH_ID
+    group by OIJ.TABLE_ID, OIJ.DISH_ID, OIJ.AMOUNT) x
+group by BRANCH_ID)
+select * from TURNOVER;
 -- endregion
 
 -- ---------------------------------------------------------------------- -
@@ -73,7 +81,19 @@ use restaurant;
 
 -- Tabellen: BRANCHES, TABLES, ORDER_ITEMS
 -- User: OE
+with ola as (
+select OIJ.TABLE_ID he, B.BRANCH_ID
+from ORDER_ITEMS_JT OIJ
+join TABLES T on T.table_id = OIJ.TABLE_ID
+join BRANCHES B on B.BRANCH_ID = T.branch_id)
 
-
+select B.NAME, T.table_id, T.table_nr
+from BRANCHES B
+join TABLES T on B.BRANCH_ID = T.branch_id
+join ORDER_ITEMS_JT OIJ on T.table_id = OIJ.TABLE_ID
+WHERE exists(select T2.table_id from (select B.NAME, T.table_id, T.table_nr
+from BRANCHES B
+join TABLES T on B.BRANCH_ID = T.branch_id
+join ORDER_ITEMS_JT OIJ on T.table_id = OIJ.TABLE_ID) T2 where T2.table_id = ola.he);
 
 -- endregion

@@ -1,4 +1,5 @@
-use cruise;
+use
+cruise;
 
 -- ------------------------------------------------------------------------
 -- 1.1) SQL Klauseln
@@ -43,8 +44,7 @@ from ROUTES_JT;
 
 select LABEL, datediff(DATE_OF_ARRIVAL, DATE_OF_DAPARTURE)
 from CRUISES
-order by LABEL
-limit 5;
+order by LABEL limit 5;
 
 -- endregion
 

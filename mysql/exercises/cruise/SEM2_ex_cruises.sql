@@ -38,7 +38,7 @@ from CRUISES c
 -- Geben Sie für Kreuzfahrten folgende Werte an:
 -- LABEL, DISTANCE, DISTANCE_CLASSIFICATION
 
--- @LABEL -> CRUISES.LABEL
+-- @LABEL    -> CRUISES.LABEL
 -- @DISTANCE -> Die während der Kreuzfahrt zurückgelegte Länge der Summe
 --              der Strecken
 
@@ -136,6 +136,8 @@ from COUNTRY_MAX cm
 --          Datensaetzen bestehen!
 
 -- Tabellen: CRUISE_HAS_BOOKINGS_JT, BOOKINGS
+
+
 
 
 -- endregion
