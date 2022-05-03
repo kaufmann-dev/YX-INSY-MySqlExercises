@@ -1,0 +1,99 @@
+// --------------------------------------------------------------------
+//   1.Beispiel) JSON Schema
+// --------------------------------------------------------------------
+// Programmieren Sie für folgendes Dokument ein JSON Schema. 
+
+var person = {
+    firstName : "Yi",     //lenght: 2 - 100  //required
+    lastName  : "Sunsin", //lenght: 2 - 100  //required
+    age       :  new NumberInt(55),       //Werte: 0 - 200  //required
+    height    :  new NumberDecimal(1.78), //Min: 0
+    weight    :  new NumberDecimal(78.3), //Min: 0
+    isMale    :  true
+});
+
+
+db.getCollection("persons").drop();
+db.createCollection(
+      // programm
+);
+
+
+db.getCollection("persons").insertOne({
+    firstName : "Yi",
+    lastName  : "Sunsin",
+    age : new NumberInt(45),
+    height : new NumberDecimal(1.78),
+    weight : new NumberDecimal(82.2)
+});
+
+
+// --------------------------------------------------------------------
+//   2.Beispiel) JSON Schema
+// --------------------------------------------------------------------
+// Programmieren Sie für folgendes JSON Dokument ein JSON Schema.
+
+var cruise = {
+    title : "Golden Cruise",   // required length: 0 - 100
+    description : "bla bla bla ...", // required length: 0 - 500
+    ship : {  
+        name : "Phönix", // required length: 0 - 100
+        type : "CRUISE_SHIP", 
+        //required values : ["CRUISE_SHIP","AIRCRAFT_CARRIER"]
+        cabinCount : new NumberInt(450) // required values: 0 - 500
+    }
+};
+
+
+db.getCollection("cruises").drop();
+db.createCollection(
+   // programm
+);
+
+db.getCollection("cruises").insertOne({
+   title : "Golden Cruise",
+   description : "bla bla bla",
+   ship : {
+      name : "Phönix",
+      type : "CRUISE_SHIP",
+      cabinCount : new NumberInt(350)
+   }
+});
+
+db.getCollection("cruises").find({});
+
+// --------------------------------------------------------------------
+//   3.Beispiel) JSON Schema
+// --------------------------------------------------------------------
+// Programmieren Sie für folgendes JSON Dokument ein JSON Schema.
+
+var entry = {
+    message : "alora alora", // length: 1 - 4000  //required
+    stars    : [3,4,5,2],    // required
+    category : ["politics", "finance"], // required
+    answers : [
+       { message : "ans1" },
+       { message : "ans2" }
+    ]
+};
+
+db.getCollection("entries").drop();
+db.createCollection(
+   // programm
+);
+
+db.getCollection("entries").insertOne({
+    message : "alora ...",
+    stars : [
+        new NumberInt(4), new NumberInt(2)
+    ],
+    category : [
+       "politics", "finance" 
+    ], 
+    answers : [
+        { message : "answ 1"},
+        { message : "answ 2"}
+    ]
+});
+
+db.getCollection("entries").find({});
