@@ -20,7 +20,8 @@
 //  };
 
 db.facilities.find({});
-db.projects.find({});
+
+db.facilities.aggregate({});
 
 
 
@@ -33,8 +34,7 @@ db.projects.find({});
 
 db.projects.find({});
 
-
-
+db.events.aggregate([{}]);
 
 
 
