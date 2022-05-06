@@ -1,3 +1,5 @@
+use insy;
+
 db.events.aggregate([{
     $match : {
         eventType : "BATTLE"
