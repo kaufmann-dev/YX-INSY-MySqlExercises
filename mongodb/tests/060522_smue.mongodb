@@ -1,0 +1,16 @@
+use insy;
+
+db.events.aggregate([{
+    $match: {
+        eventType: "BATTLE"
+    }
+}, {
+    $unwind : "$belligerents"
+}, {
+    $group: {
+        _id: "$belligerents.commander",
+        documentCount: {
+            $sum: 1
+        }
+    }
+}]);

@@ -1,0 +1,79 @@
+/* FIND ALL PROJECTS */
+db.databasename.find({});
+
+/* AGGREGATE */
+db.database.aggregate([{},...])
+
+// $match - match the specified condition(s) to the next pipeline stage.
+// { $match: { <query> } }
+    // check if array has elemnts
+    reviews : {
+        $exists : true, $not : { $size : 0 }
+    }
+
+    // check if field has value
+    eventType:"BATTLE"
+
+// number of documents to limit
+{ $limit: 2 }
+
+// save output with custom name
+{ $out: "eventReport" }
+
+// define field to include in output
+{
+    $project: {
+        eventName: "$name",
+        battleVictor: "$victor",
+        description: "$description"
+    }
+}
+
+// $group
+// Groups input documents by the specified _id expression
+// and for each distinct grouping, outputs a document. The _id
+// field of each output document contains the unique group by value.
+// {
+//     $group: {
+//         _id: <expression>, // Group By Expression
+//         <field1>: { <accumulator1> : <expression1> },
+//         ...
+//     }
+// }
+$group: {
+  _id: "$eventType",
+  documentCount: {
+      $sum: 1
+  },
+  eventNames: {
+      $addToSet: {
+          name: "$name",
+          victor: "$victor"
+      }
+  }
+}
+
+// $unwind
+// Deconstructs an array field from the input documents
+// to output a document for each element. Each output
+// document is the input document with the value of the
+// array field replaced by the element.
+{ $unwind: "$belligerents" }
+
+// $lookup
+// {
+//    $lookup:
+//      {
+//        from: <collection to join>,
+//        localField: <field from the input documents>,
+//        foreignField: <field from the documents of the "from" collection>,
+//        as: <output array field>
+//      }
+// }
+{ $lookup: {
+    from: "events",
+    localField: "_id",
+    foreignField: "_id",
+    as: "temp"
+  }
+}

@@ -20,7 +20,7 @@ use insy;
 
 //  reviews : {
 //       $exists : true, $not : { $size : 0 }   
-// }
+//  }
 
 db.events.find({});
 

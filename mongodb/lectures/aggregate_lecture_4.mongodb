@@ -1,0 +1,55 @@
+// -- ----------------------------------------------------------------------------- --
+// --  1.Beispiel) aggregate: Pipelinestufen, Expressions
+// -- ----------------------------------------------------------------------------- --
+// Generieren Sie für die bestehenden Matches eine Rangliste für die spielenden 
+// Mannschaften.
+
+// var team = {
+//    "name" : "FC Liverpool"
+//    "points" : 14.0,
+//    "victories" : 4.0,
+//    "draws" : 2.0,
+//    "defeats" : 1.0,
+// }
+
+
+// ------------------------------------------------------------- --
+// Hinweis: Expression Syntax - $map, $reduce, $filter, $let
+// ------------------------------------------------------------- --
+
+/*
+   $map: {
+      input: <expression>,
+      as: <string>,
+      in: <expression>
+   }
+
+ 
+   $reduce: {
+       input: <array>,
+       initialValue: <expression>,
+       in: <expression>
+    }
+ 
+    $filter : {
+         input : <array>,
+         as : <string>,
+        cond : <expression>
+     }
+ 
+
+    $let : {
+       vars : {
+           <var1> : <expression>,
+           <var2> : <expression>,
+           ...
+        },
+        in : <expression>
+    }
+*/
+
+
+
+db.matches.find({});
+
+

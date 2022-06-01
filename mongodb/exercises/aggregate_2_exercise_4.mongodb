@@ -1,0 +1,71 @@
+use insy;
+
+db.events.find();
+
+db.events.aggregate([{
+    $match: {
+        eventType: {
+            eventType: "BATTLE"
+        }
+    }
+}, {
+    $unwind: "$belligerents"
+}, {
+    $addFields: {
+        totalLosses: {
+            $sum: "$belligerents.losses.amount"
+        }
+    }
+}, {
+    $group: {
+        _id: "$_id",
+        losses: {
+            $sum: "$totalLosses"
+        }
+    }
+}, {
+    $group: {
+        _id:  null,
+        losses: {
+            $max: "$lososes"
+        },
+        eventIds: {
+            $addToSet: {
+                _id: "$_id",
+                losses: "$losses"
+            }
+        }
+    }
+}, {
+    $addFields: {
+        events: {
+            $filter: {
+                input: "$events",
+                as: "event",
+                cond: {
+                    $eq: ["$event.losses", "$losses"]
+                }
+            }
+        }
+    }
+}, {
+    $unwind: "$events"
+}, {
+    $replaceRoot: {
+        newRoot: "$events"
+    }
+}]);
+
+// Berechnen Sie das Match bei dem die meisten Tore gefallen sind
+db.matches.find();
+db.matches.aggregate([{
+    $unwind: "$events"
+}, {
+    $group: {
+        _id: "$_id"
+    }
+}, {
+    $addFields: {
+
+    }
+}]);

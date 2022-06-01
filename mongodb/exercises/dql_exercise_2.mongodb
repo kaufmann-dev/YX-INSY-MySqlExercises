@@ -1,0 +1,117 @@
+ // --------------------------------------------------------------------------------------
+// -- 1.) Beispiel - Abfragen Syntax
+// --------------------------------------------------------------------------------------
+// Syntax: db.getCollection("<collection>").find(<query>);
+
+/* Syntax: query => {
+              $logicalOperator : [
+                 { <Condition> },
+                 { <Condition> }
+              ]             
+           } 
+*/
+
+// $logicalOperator := $and || $or || $nor
+
+// Syntax: Condition := { <field> : { $compOp : value  }}
+
+//         $compOp := $eq || $ne || $lt || $lte || $gt || $gte 
+
+// --------------------------------------------------------------------------------------
+// -- 2.) Beispiel - Abfragen 
+// --------------------------------------------------------------------------------------
+// a) Finden Sie alle REQUEST_FUNDING_PROJECT Projekte.
+
+
+
+// b) Finden Sie alle Projekte die vom FWF und von der FFG gesponsert werden.
+
+
+
+// c) Finden Sie alle Projekte aus die weder "REQUEST_FUNDING_PROJECT" Projekte noch
+//    "RESEARCH_FUNDING_PROJECT" Projekte sind.
+
+
+
+// d) Finden Sie alle Projekte die einen der folgenden Projekttypen haben: REQUEST_FUNDING_PROJECT
+//    RESEARCH_FUNDING_PROJECT
+
+
+// e) Finden Sie alle Subprojekte die einen appliedResearch Wert haben zwischen 50 und 100
+
+
+
+// --------------------------------------------------------------------------------------
+// -- 3.) Beispiel - Abfragen / Kurzformen 
+// --------------------------------------------------------------------------------------
+// a) Finden Sie alle REQUEST_FUNDING_PROJECT Projekte.
+
+// Kurzform: $and Operator
+/*db.getCollection("projects").find({
+    $and: [
+        { projectType: { $eq: "REQUEST_FUNDING_PROJECT" } }
+    ]
+});*/
+
+
+
+
+// b) Finden Sie alle Projekte die vom FWF und von der FFG gesponsert werden.
+
+/*db.getCollection("projects").find({
+    $and: [
+        { isFFGSponsered: { $eq: true } },
+        { isFWFSponsered: { $eq: true } }
+    ]
+});*/
+
+
+
+
+// c) Finden Sie alle Subprojekte die einen appliedResearch Wert haben zwischen 50 und 100
+
+/*db.getCollection("subprojects").find({
+    $and: [
+        { appliedResearch: { $gte: 50 } },
+        { appliedResearch: { $lte: 100 } }
+    ]
+});*/
+
+
+// --------------------------------------------------------------------------------------
+// -- 4.) Beispiel - Abfragen / Embedded Objects
+// --------------------------------------------------------------------------------------
+// a) Finden Sie alle Subprojekte die am Institut für Softwareentwicklung durchgeführt
+//    werden und einen Förderung haben die höher ist als 10000€.
+
+
+
+// --------------------------------------------------------------------------------------
+// -- 5.) Beispiel - Abfragen / in Operator
+// --------------------------------------------------------------------------------------
+// Finden Sie alle Projekte die sich in einem der folgenden Zustände befinden:
+// "CREATED", "IN_APPROVEMENT", "APPROVED"
+
+
+
+
+
+// --------------------------------------------------------------------------------------
+// -- 6.) Beispiel - Abfragen
+// --------------------------------------------------------------------------------------
+// Finden Sie alle RESEARCH_FUNDING_PROJECT Projekte die 2 oder mehr Subprojekte haben.
+// Geben Sie für die Projekte folgende Property aus: title, projectType, projectState.
+
+// Sortieren Sie das Ergebnis nach dem titel aufsteigend.
+
+
+
+
+
+
+
+
+
+
+
+

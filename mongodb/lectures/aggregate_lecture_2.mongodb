@@ -1,0 +1,241 @@
+use insy;
+
+// -- ----------------------------------------------------------------------------------------- --
+// --  1.Beispiel) aggregate Framework
+// -- ----------------------------------------------------------------------------------------- --
+// Geben Sie für jedes Institut folgenden Daten aus. Speichern Sie die Daten in einer Collection
+// facilityReport.
+
+// var institute = {
+//       _id :  ...,
+//       name : "..",
+//       code : "...",
+//       projects : [
+//             {
+//                _id : ...,
+//                title : ...,
+//                projectFunding : ....   
+//             }, {
+//                ...
+//             }         
+//       ]
+//  };
+
+db.facilities.find({});
+
+db.facilities.aggregate({
+    $project: {
+        name: 1,
+        code: 1,
+        projects: 1
+    }
+}, {
+    $lookup: {
+        from: "projects",
+        localField: "projects.project_id",
+        foreignField: "_id",
+        as: "projects"
+    }
+}, {
+    $unwind: "$projects"
+},{
+    $addField: {
+        "projects.fundingAmount": {
+            $sum: "$projects.fundings.amount"
+        }
+    }
+}, {
+    $project: {
+        name: 1,
+        code: 1,
+        "projects._id": 1,
+        "projects.title": 1,
+        "projects.fundingAmount": 1
+    }
+}, {
+    $group: {
+        _id: {
+            _id: "$_id",
+            code: "$code",
+            name: "$name"
+        },
+        projects: {
+            $push: "$projects"
+        }
+    }
+}, {
+    $addField: {
+        "_id.projects": "$projects"
+    }
+}, {
+    $replaceRoot: {
+        newRoot: "$_id"
+    }
+}, {
+    $out: "facilityReport"
+});
+
+
+
+
+// -- ----------------------------------------------------------------------------------------- --
+// --  2.Beispiel) aggregate Framework - $lookup subpipeline
+// -- ----------------------------------------------------------------------------------------- --
+// Finden Sie das Projekt mit der hoechsten Projektförderung. Geben Sie die folgenden Felder aus:
+// title, projectType, projectState, projectFunding
+
+db.projects.find({});
+
+db.projects.aggregate([{
+    $project: {
+    fundingAmount: {
+        $sum: "$fundings.amount"
+    }
+    }
+}, {
+    $group: {
+        _id: null,
+        maxFundingAmount: {
+            $max: "$fundingAmount"
+        },
+        projects: {
+            $addToSet: {
+                _id: "$_id",
+                fundingAmount: "$fundingAmount"
+            }
+        }
+    }
+}, {
+    $addFields: {
+        projects: {
+            $filter: {
+                input: "$projects",
+                as: "project",
+                cond: {
+                    $eq: ["$project.fundingAmount", "$maxFundingAmount"]
+                }
+            }
+        }
+    }
+}, {
+    $unwind: "$projects"
+}, {
+    $replaceRoot: {
+        newRoot: "$projects"
+    }
+}, {
+    $lookup: {
+        from: "projects",
+        localField: "_id",
+        foreinField: "_id",
+        as: "projects"
+    }
+}, {
+    $unwind: "$projects"
+}, {
+    $project: {
+        title: "$projects.title",
+        projectType: "$projects.projectType",
+        projectState: "$projects.projectState",
+        fundingAmount: 1
+    }
+}]);
+
+
+
+// -- ----------------------------------------------------------------------------------------- --
+// --  3.Beispiel) aggregate Framework - if, switch 
+// -- ----------------------------------------------------------------------------------------- --
+// Für Projekte soll ein projectReport erstellt werden. Dazu wird für jedes Projekt eine Evaluierung
+// durchgeführt. 
+
+// Erfüllt ein Projekt die folgenden Kriterien werden ihm für folgende Posten Punktwerte zugeschrieben.
+
+// REQUEST_FUNDING_PROJECT  -> 20.P
+// RESEARCH_FUNDING_PROJECT -> 5.P
+
+// IS_EU_SPONSORED    -> 10.P
+// IS_FWF_SPONSORED   -> 5.P
+// IS_FFG_SPONSORED   -> 3.P
+
+// pro Subprojekt     -> 5.P
+
+
+// Geben Sie für jedes Projekt folgende Werte aus:
+
+// var project = {
+//        _id : ...
+//        title : ...
+//        projectType  : ...
+//        projectState : ...
+//        projectEveluation: ...
+
+
+// Sortieren Sie das Ergebnis nach dem projectEvaluation Wert absteigende.
+
+
+// Hinweis: 
+// Syntax: expressions
+//
+//         <expression> := <expression operator> || <system variable> || <field path> || <object>
+//                      
+//         <operator> := <arithmetic operator> || <array operator> || <boolean operator> || ....
+//         <arithmetic operator> :=  $abs || $add || $divide || $multiply || $subtract
+//         <array operator>      :=  $arrayElemAt || $map || $in || $filter || $reduce
+//         <comparison operator> :=  $eq || $ne || $gte || $lte
+//         ...
+
+// Syntax:   $cond : {
+//              if : {
+//                 ...
+//              },
+//              then : ...
+//              else : ...
+//          }
+
+//          $switch : {
+//              branches : [
+//                  { case :  <expression>, then :  <expression> }}
+//                  ...
+//              ]  
+//          }
+
+//
+// Syntax: arithmetic operator :   $op : ["", ""]
+// Syntax: comparison operator :   $op : ["", ""]
+
+db.projects.aggregate([{
+
+}]);
+
+
+// -- ----------------------------------------------------------------------------------------- --
+// --  4.Beispiel) aggregate Framework - Arrayoperator filter
+// -- ----------------------------------------------------------------------------------------- --
+// Finden Sie das Projekt mit der hoechsten Projektförderung. Geben Sie die folgenden Felder aus:
+// title, projectType, projectState, projectFunding
+
+// Syntax: $filter : {
+//             input : <array>,
+//             as : <item>,
+//             cond : { $op : [....] }
+//          }
+
+db.projects.find({});
+db.projects.aggregate([{
+    $unwind  :{
+
+    }
+}, {
+    $group : {
+
+    }
+}, {
+    $lookup : {
+
+    }
+}, {
+    $out : "lol"
+}]);
+
+
