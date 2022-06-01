@@ -1,4 +1,5 @@
 use insy;
+
 db.getCollection("matches").drop();
 
 db.getCollection("matches").insertMany([
