@@ -1,5 +1,5 @@
 use insy;
- // -- --------------------------------------------------------------------------------- --
+// -- --------------------------------------------------------------------------------- --
 // --  1.Beispiel) Aggregationsframework: $match, $project, $sort, $out (1.Punkt)
 // -- --------------------------------------------------------------------------------- --
 // Sammeln Sie die folgenden Eventdaten in der "eventsReport" Collection. Berücksichtigen
@@ -108,7 +108,7 @@ db.events.aggregate([{
 // @territorialChange -> territorialChange
 // @belligerents : [{
 //     commander : "...",
-//     nation : "...",
+//     nation : "...",ö
 //     troopCount : -> $sum composition.amount
 //     troopTypes : ["...", "..."]
 //     lossCount  : -> $sum losses.amount

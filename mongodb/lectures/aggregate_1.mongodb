@@ -57,6 +57,7 @@ db.projects.updateMany(
 
 
 
+
 // -- ---------------------------------------------------------------------------------------- -- 
 // --  2.Beispiel) DocumentOperator - $match, $out
 // -- ---------------------------------------------------------------------------------------- --
@@ -66,7 +67,16 @@ db.projects.updateMany(
 
 db.projects.find({});
 
-
+db.projects.aggregate([{
+    $match : {
+        "projectType" : { $eq: "RESEARCH_FUNDING_PROJECT" },
+        "fundings" : {
+            $elemMatch : {
+                debitorName:"TU Wien"
+            }
+        }
+    }
+}]);
 
 db.projects.aggregate([
    {
@@ -105,7 +115,7 @@ db.projects.aggregate([
 // -- ---------------------------------------------------------------------------------------- -- 
 // --  4.Beispiel) StrukturOperator - $project, $addFields
 // -- ---------------------------------------------------------------------------------------- --
-// Sammeln Sie alle REQUEST_FUNDING_PROJECT bzw. RESEARCH_FUNDING_PROJECT Projekte in einer
+// Sammeln Sie alle "REQUEST_FUNDING_PROJECT" bzw. RESEARCH_FUNDING_PROJECT Projekte in einer
 // Collection projectReport. Berücksichtigen Sie nur Projekte mit 2 oder mehreren subprojekten
 
 // Geben Sie die folgenden Felder aus:
@@ -116,6 +126,23 @@ db.projects.aggregate([
 //    Transformationen:    subprojects (array of titles)
 
 db.projects.find({});
+
+db.projects.aggregate([{
+    $match : {
+        "projectType" : { $in: ["projectType", "RESEARCH_FUNDING_PROJECT"] }
+    }
+} ,{
+    $addFields : {
+        "spc" : { $size : "$subprojects" },
+        "funding" : {
+            $sum : "$fundings.amount"
+        }
+    }
+}, {
+    $match : {
+        "spc" : { $gte : 2}
+    }
+}]);
 
 db.projects.aggregate([
    {
@@ -169,7 +196,18 @@ db.projects.aggregate([
 
 // debitorName, projects, fundingAmount, supportedProjects, fundedProjects
 
-db.debitors.find({});
+db.projects.find({});
+
+db.projects.aggregate([{
+    $unwind : "fundings"
+}, {
+    $group : {
+        _id : "$_id",
+        projects : {
+            $addToSet : ""
+        }
+    }
+}]);
 
 db.debitors.aggregate([
    {
@@ -201,37 +239,50 @@ db.debitors.aggregate([
 db.projects.find({});
 db.subprojects.find({});
 
-db.subprojects.aggregate([
-    {
-       $lookup : {
-           from : "projects",
-           localField   : "project._id",
-           foreignField : "_id",
-           as : "projectData"   
-       }    
-    } , { 
-       $project : {
-           projectTitle : "$project.title",
-           subprojectTitle : "$title",
-           facility : "$facility.name",
-           researchValues : [ 
-              "$appliedResearch", "$focusResearch", "$theoreticalResearch"
-           ],
-           subprojectFunding : "$funding.amount",
-           projectFunding : "$projectData"
-       }
-    }, {    
-       $unwind : "$projectFunding"
-    }, { 
-       $addFields : {
-           projectFunding : {
-               $sum : "$projectFunding.fundings.amount"
-           }
-       }
-    }, { 
-        $out: "subprojectReport"
+db.subprojects.aggregate([{
+    $project : {
+        subprojectTitle : "$title",
+        projectTitle : "$project.title",
+        facility : "$facility",
+        researchValues : {
+            appliedResearch : "$appliedResearch",
+            focusResearch : "$focusResearch",
+            theoreticalResearch : "$theoreticalResearch"
+        },
+        subprojectFunding : "$funding"
     }
-]);
+}]);
+
+db.subprojects.aggregate([
+{
+   $lookup : {
+       from : "projects",
+       localField   : "project._id",
+       foreignField : "_id",
+       as : "projectData"
+   }
+} , {
+   $project : {
+       projectTitle : "$project.title",
+       subprojectTitle : "$title",
+       facility : "$facility.name",
+       researchValues : [
+          "$appliedResearch", "$focusResearch", "$theoreticalResearch"
+       ],
+       subprojectFunding : "$funding.amount",
+       projectFunding : "$projectData"
+   }
+}, {
+   $unwind : "$projectFunding"
+}, {
+   $addFields : {
+       projectFunding : {
+           $sum : "$projectFunding.fundings.amount"
+       }
+   }
+}, {
+    $out: "subprojectReport"
+}]);
 
 
 
@@ -242,6 +293,19 @@ db.subprojects.aggregate([
 // Ermitteln Sie welchem Projekttyp wieviele Projektdokumente zugeordnet sind.  Speichern Sie
 // die Daten in der projectReport Collection. Speichern Sie ebenfalls die Titel der den
 // Projekttypen zugeordneten Dokumente.
+
+db.projects.find();
+db.projects.aggregate([{
+    $group : {
+        _id : "$projectType",
+        documentCount : {
+            $count : {}
+        },
+        documents : {
+            $addToSet : "$title"
+        }
+    }
+}]);
 
 db.projects.aggregate([
    {
@@ -269,6 +333,10 @@ db.projects.aggregate([
 // $bucket:   projectFunding:     0 - 20.000    20.001 - 50.000    
 
 db.projects.find({});
+
+db.projects.aggregate([{
+    $
+}]);
 
 db.projects.aggregate([
     {

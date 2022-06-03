@@ -400,7 +400,7 @@ db.getCollection("facilities").insertMany([
 
 db.facilities.find();
 
--- subprojects
+// subprojects
 
 db.getCollection("subprojects").drop();
 
