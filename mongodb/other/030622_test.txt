@@ -1,0 +1,84 @@
+use insy;
+
+/* 1) Beispiel (komplexes Beispiel)
+
+schema: events
+Für welche Truppentypen sind die höchsten Verluste zu verzeichnen
+
+Lösung:
+{
+    _id=HEAVY_INFANTRY,
+    lossCount=495400,
+    battles=[
+        Siege of Vienna II, Battle of Kursk, Battle of Gaugamela, Battle of the Granicus River, Siege of Vienna I, Siege of Vienna I, Battle of Agincourt, Battle of Kursk, Battle of Agincourt, Battle of Issus, Siege of Vienna II]
+}
+*/
+
+db.events.find();
+db.events.aggregate([{
+    $project: {
+        "belligerents.losses" : 1,
+        name : 1
+    }
+}, {
+    $unwind : "$belligerents"
+}, {
+    $unwind : "$belligerents.losses"
+}, {
+    $project : {
+        name : 1,
+        type : "$belligerents.losses.type",
+        losses : "$belligerents.losses.amount"
+    }
+}, {
+    $group : {
+        _id: "$type",
+        lossCount : {
+            $sum : "$losses"
+        },
+        battles : {
+            $addToSet : "$name"
+        }
+    }
+}, {
+    $sort : { "lossCount" : -1 }
+}, {
+    $limit : 1
+}]);
+
+/*2) Beispiel (einfaches Beispiel)
+
+schema: personalities
+
+// Finden Sie das event mit der längsten Dauer
+
+"{title=King of Macedon, duration=16,
+person=Alexander III of Macedon
+}"
+*/
+
+db.personalities.find();
+db.personalities.aggregate([{
+    $unwind : "$events"
+}, {
+    $group : {
+        _id: "$fullName",
+        duration: {
+            $max : "$events.duration"
+        },
+        title : {
+            $first : "$events.title"
+        }
+    }
+}, {
+    $sort : {"duration":-1}
+}, {
+    $limit : 1
+}, {
+    $project : {
+        title: 1,
+        duration: 1,
+        person : "$_id",
+        _id : 0
+    }
+}]);
