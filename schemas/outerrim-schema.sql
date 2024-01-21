@@ -1,0 +1,469 @@
+ -- MySQL Workbench Forward Engineering
+
+drop DATABASE if EXISTS outerrim;
+CREATE DATABASE outerrim;
+use outerrim;
+SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
+SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
+SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
+
+-- -----------------------------------------------------
+-- Schema outerrim
+-- -----------------------------------------------------
+
+-- -----------------------------------------------------
+-- Schema outerrim
+-- -----------------------------------------------------
+CREATE SCHEMA IF NOT EXISTS `outerrim` ;
+USE `outerrim` ;
+
+-- -----------------------------------------------------
+-- Table `outerrim`.`E_SECTORS`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `outerrim`.`E_SECTORS` (
+  `CODE` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`CODE`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `outerrim`.`SPACES_BT`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `outerrim`.`SPACES_BT` (
+  `SPACE_ID` INT NOT NULL AUTO_INCREMENT,
+  `CODE` VARCHAR(50) NOT NULL,
+  `SECTOR_CODE` VARCHAR(45) NOT NULL,
+  `SPACE_TYPE` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`SPACE_ID`),
+  INDEX `fk_SPACES_BT_E_SECTORS1_idx` (`SECTOR_CODE` ASC) VISIBLE,
+  CONSTRAINT `fk_SPACES_BT_E_SECTORS1`
+    FOREIGN KEY (`SECTOR_CODE`)
+    REFERENCES `outerrim`.`E_SECTORS` (`CODE`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `outerrim`.`ROUTES_JT`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `outerrim`.`ROUTES_JT` (
+  `START_SPACE_ID` INT NOT NULL,
+  `END_SPACE_ID` INT NOT NULL,
+  `LABEL` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`START_SPACE_ID`, `END_SPACE_ID`),
+  INDEX `fk_ROUTES_JT_SPACES_BT2_idx` (`END_SPACE_ID` ASC) VISIBLE,
+  UNIQUE INDEX `LABEL_UNIQUE` (`LABEL` ASC) VISIBLE,
+  CONSTRAINT `fk_ROUTES_JT_SPACES_BT1`
+    FOREIGN KEY (`START_SPACE_ID`)
+    REFERENCES `outerrim`.`SPACES_BT` (`SPACE_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_ROUTES_JT_SPACES_BT2`
+    FOREIGN KEY (`END_SPACE_ID`)
+    REFERENCES `outerrim`.`SPACES_BT` (`SPACE_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `outerrim`.`AIRCRAFT_SPECIFICATIONS`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `outerrim`.`AIRCRAFT_SPECIFICATIONS` (
+  `SPECIFICATION_ID` INT NOT NULL AUTO_INCREMENT,
+  `BRAND` VARCHAR(100) NOT NULL,
+  `HYPERDRIVE_VALUE` INT NOT NULL,
+  `SHIP_COMBAT_VALUE` INT NOT NULL,
+  `INITIAL_HULL_POINTS` INT NOT NULL,
+  `PRICE` INT NOT NULL,
+  PRIMARY KEY (`SPECIFICATION_ID`),
+  UNIQUE INDEX `BRAND_UNIQUE` (`BRAND` ASC) VISIBLE)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `outerrim`.`KEYWORD_ENTITIES_BT`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `outerrim`.`KEYWORD_ENTITIES_BT` (
+  `ENTITY_ID` INT NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`ENTITY_ID`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `outerrim`.`CHARACTERS`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `outerrim`.`CHARACTERS` (
+  `FIRST_NAME` VARCHAR(45) NOT NULL,
+  `LAST_NAME` VARCHAR(45) NOT NULL,
+  `GROUND_COMBAT_VALUE` INT NOT NULL,
+  `HEALTH` INT NOT NULL,
+  `CHARACTER_ID` INT NOT NULL,
+  PRIMARY KEY (`CHARACTER_ID`),
+  CONSTRAINT `fk_CHARACTERS_KEYWORD_ENTITIES_BT1`
+    FOREIGN KEY (`CHARACTER_ID`)
+    REFERENCES `outerrim`.`KEYWORD_ENTITIES_BT` (`ENTITY_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `outerrim`.`AIRCRAFTS`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `outerrim`.`AIRCRAFTS` (
+  `SPECIFICATION_ID` INT NOT NULL,
+  `HULL_POINTS` INT NOT NULL,
+  `AIRCRAFT_ID` INT NOT NULL,
+  `CODE` VARCHAR(45) NOT NULL,
+  INDEX `fk_AIRCRAFTS_SPECIFICATION_ID1_idx` (`SPECIFICATION_ID` ASC) VISIBLE,
+  PRIMARY KEY (`AIRCRAFT_ID`),
+  UNIQUE INDEX `CODE_UNIQUE` (`CODE` ASC) VISIBLE,
+  CONSTRAINT `fk_AIRCRAFTS_SPECIFICATION_ID1`
+    FOREIGN KEY (`SPECIFICATION_ID`)
+    REFERENCES `outerrim`.`AIRCRAFT_SPECIFICATIONS` (`SPECIFICATION_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_AIRCRAFTS_KEYWORD_ENTITIES_BT1`
+    FOREIGN KEY (`AIRCRAFT_ID`)
+    REFERENCES `outerrim`.`KEYWORD_ENTITIES_BT` (`ENTITY_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `outerrim`.`FACTIONS`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `outerrim`.`FACTIONS` (
+  `FACTION_ID` INT NOT NULL AUTO_INCREMENT,
+  `NAME` VARCHAR(45) NOT NULL,
+  `DESCRIPTION` TEXT NOT NULL,
+  PRIMARY KEY (`FACTION_ID`),
+  UNIQUE INDEX `NAME_UNIQUE` (`NAME` ASC) VISIBLE)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `outerrim`.`LOGS`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `outerrim`.`LOGS` (
+  `LOG_ID` INT NOT NULL AUTO_INCREMENT,
+  `LOG_DATE` DATETIME NOT NULL,
+  `SPACE_ID` INT NOT NULL,
+  `AIRCRAFT_ID` INT NOT NULL,
+  PRIMARY KEY (`LOG_ID`),
+  INDEX `fk_LOGS_SPACES_BT1_idx` (`SPACE_ID` ASC) VISIBLE,
+  INDEX `fk_LOGS_AIRCRAFTS1_idx` (`AIRCRAFT_ID` ASC) VISIBLE,
+  CONSTRAINT `fk_LOGS_SPACES_BT1`
+    FOREIGN KEY (`SPACE_ID`)
+    REFERENCES `outerrim`.`SPACES_BT` (`SPACE_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_LOGS_AIRCRAFTS1`
+    FOREIGN KEY (`AIRCRAFT_ID`)
+    REFERENCES `outerrim`.`AIRCRAFTS` (`AIRCRAFT_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `outerrim`.`CREWS`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `outerrim`.`CREWS` (
+  `DESCRIPTION` TEXT NOT NULL,
+  `LABEL` VARCHAR(100) NOT NULL,
+  `CREATED_AT` DATE NOT NULL,
+  `TERMINATED_AT` DATE NULL,
+  `CREW_ID` INT NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`CREW_ID`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `outerrim`.`E_ROLES`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `outerrim`.`E_ROLES` (
+  `NAME` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`NAME`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `outerrim`.`CREW_MEMBERS_JT`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `outerrim`.`CREW_MEMBERS_JT` (
+  `ROLE` VARCHAR(45) NOT NULL,
+  `JOINED_AT` DATE NOT NULL,
+  `LEFT_AT` DATE NULL,
+  `CREW_ID` INT NOT NULL,
+  `CHARACTER_ID` INT NOT NULL,
+  PRIMARY KEY (`ROLE`, `JOINED_AT`, `CREW_ID`, `CHARACTER_ID`),
+  INDEX `fk_CREW_MEMBERS_JT_E_ROLES1_idx` (`ROLE` ASC) VISIBLE,
+  INDEX `fk_CREW_MEMBERS_JT_CREWS1_idx` (`CREW_ID` ASC) VISIBLE,
+  INDEX `fk_CREW_MEMBERS_JT_CHARACTERS1_idx` (`CHARACTER_ID` ASC) VISIBLE,
+  CONSTRAINT `fk_CREW_MEMBERS_JT_E_ROLES1`
+    FOREIGN KEY (`ROLE`)
+    REFERENCES `outerrim`.`E_ROLES` (`NAME`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_CREW_MEMBERS_JT_CREWS1`
+    FOREIGN KEY (`CREW_ID`)
+    REFERENCES `outerrim`.`CREWS` (`CREW_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_CREW_MEMBERS_JT_CHARACTERS1`
+    FOREIGN KEY (`CHARACTER_ID`)
+    REFERENCES `outerrim`.`CHARACTERS` (`CHARACTER_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `outerrim`.`REPUTATION_CHANGE_ENTITIES_BT`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `outerrim`.`REPUTATION_CHANGE_ENTITIES_BT` (
+  `ENTITY_ID` INT NOT NULL AUTO_INCREMENT,
+  `CREW_ID` INT NOT NULL,
+  `DESCRIPTION` TEXT NOT NULL,
+  PRIMARY KEY (`ENTITY_ID`),
+  INDEX `fk_REPUTATION_CHANGE_ENTITIES_BT_CREWS1_idx` (`CREW_ID` ASC) VISIBLE,
+  CONSTRAINT `fk_REPUTATION_CHANGE_ENTITIES_BT_CREWS1`
+    FOREIGN KEY (`CREW_ID`)
+    REFERENCES `outerrim`.`CREWS` (`CREW_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `outerrim`.`EVENTS_BT`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `outerrim`.`EVENTS_BT` (
+  `EVENT_ID` INT NOT NULL,
+  PRIMARY KEY (`EVENT_ID`),
+  CONSTRAINT `fk_EVENTS_BT_REPUTATION_CHANGE_ENTITIES_BT1`
+    FOREIGN KEY (`EVENT_ID`)
+    REFERENCES `outerrim`.`REPUTATION_CHANGE_ENTITIES_BT` (`ENTITY_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `outerrim`.`NAVIGATION_EVENTS`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `outerrim`.`NAVIGATION_EVENTS` (
+  `START_SPACE_ID` INT NOT NULL,
+  `END_SPACE_ID` INT NOT NULL,
+  `EVENT_ID` INT NOT NULL,
+  INDEX `fk_NAVIGATION_EVENTS_ROUTES_JT1_idx` (`START_SPACE_ID` ASC, `END_SPACE_ID` ASC) VISIBLE,
+  PRIMARY KEY (`EVENT_ID`),
+  CONSTRAINT `fk_NAVIGATION_EVENTS_ROUTES_JT1`
+    FOREIGN KEY (`START_SPACE_ID` , `END_SPACE_ID`)
+    REFERENCES `outerrim`.`ROUTES_JT` (`START_SPACE_ID` , `END_SPACE_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_NAVIGATION_EVENTS_EVENTS_BT1`
+    FOREIGN KEY (`EVENT_ID`)
+    REFERENCES `outerrim`.`EVENTS_BT` (`EVENT_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `outerrim`.`KEYWORDS`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `outerrim`.`KEYWORDS` (
+  `WORD` VARCHAR(50) NOT NULL,
+  PRIMARY KEY (`WORD`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `outerrim`.`ENTITY_HAS_KEYWORDS_JT`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `outerrim`.`ENTITY_HAS_KEYWORDS_JT` (
+  `ENTITY_ID` INT NOT NULL,
+  `WORD` VARCHAR(50) NOT NULL,
+  PRIMARY KEY (`ENTITY_ID`, `WORD`),
+  INDEX `fk_KEYWORD_ENTITIES_BT_has_KEYWORDS_KEYWORDS1_idx` (`WORD` ASC) VISIBLE,
+  INDEX `fk_KEYWORD_ENTITIES_BT_has_KEYWORDS_KEYWORD_ENTITIES_BT1_idx` (`ENTITY_ID` ASC) VISIBLE,
+  CONSTRAINT `fk_KEYWORD_ENTITIES_BT_has_KEYWORDS_KEYWORD_ENTITIES_BT1`
+    FOREIGN KEY (`ENTITY_ID`)
+    REFERENCES `outerrim`.`KEYWORD_ENTITIES_BT` (`ENTITY_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_KEYWORD_ENTITIES_BT_has_KEYWORDS_KEYWORDS1`
+    FOREIGN KEY (`WORD`)
+    REFERENCES `outerrim`.`KEYWORDS` (`WORD`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `outerrim`.`PLANETS`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `outerrim`.`PLANETS` (
+  `PLANET_ID` INT NOT NULL,
+  PRIMARY KEY (`PLANET_ID`),
+  CONSTRAINT `fk_PLANETS_SPACES_BT1`
+    FOREIGN KEY (`PLANET_ID`)
+    REFERENCES `outerrim`.`SPACES_BT` (`SPACE_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `outerrim`.`NAVIGATION_POINTS`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `outerrim`.`NAVIGATION_POINTS` (
+  `POINT_ID` INT NOT NULL,
+  PRIMARY KEY (`POINT_ID`),
+  CONSTRAINT `fk_NAVIGATION_POINTS_SPACES_BT1`
+    FOREIGN KEY (`POINT_ID`)
+    REFERENCES `outerrim`.`SPACES_BT` (`SPACE_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `outerrim`.`PLANET_HAS_FACTIONS_JT`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `outerrim`.`PLANET_HAS_FACTIONS_JT` (
+  `PLANET_ID` INT NOT NULL,
+  `FACTION_ID` INT NOT NULL,
+  PRIMARY KEY (`PLANET_ID`, `FACTION_ID`),
+  INDEX `fk_PLANETS_has_FACTIONS_FACTIONS1_idx` (`FACTION_ID` ASC) VISIBLE,
+  INDEX `fk_PLANETS_has_FACTIONS_PLANETS1_idx` (`PLANET_ID` ASC) VISIBLE,
+  CONSTRAINT `fk_PLANETS_has_FACTIONS_PLANETS1`
+    FOREIGN KEY (`PLANET_ID`)
+    REFERENCES `outerrim`.`PLANETS` (`PLANET_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_PLANETS_has_FACTIONS_FACTIONS1`
+    FOREIGN KEY (`FACTION_ID`)
+    REFERENCES `outerrim`.`FACTIONS` (`FACTION_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `outerrim`.`COMBAT_EVENTS`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `outerrim`.`COMBAT_EVENTS` (
+  `EVENTS_BT_EVENT_ID` INT NOT NULL,
+  PRIMARY KEY (`EVENTS_BT_EVENT_ID`),
+  CONSTRAINT `fk_COMBAT_EVENTS_EVENTS_BT1`
+    FOREIGN KEY (`EVENTS_BT_EVENT_ID`)
+    REFERENCES `outerrim`.`EVENTS_BT` (`EVENT_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `outerrim`.`JOB_DESCRIPTIONS_ST`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `outerrim`.`JOB_DESCRIPTIONS_ST` (
+  `ORIGIN_PLANET_ID` INT NOT NULL,
+  `DESTINATION_PLANET_ID` INT NOT NULL,
+  `JOB_TYPE` VARCHAR(45) NOT NULL,
+  `REWARD` INT NOT NULL,
+  `DESCRIPTION_ID` INT NOT NULL AUTO_INCREMENT,
+  `DESCRIPTION` TEXT NOT NULL,
+  INDEX `fk_JOBS_BT_PLANETS1_idx` (`ORIGIN_PLANET_ID` ASC) VISIBLE,
+  INDEX `fk_JOBS_ST_PLANETS1_idx` (`DESTINATION_PLANET_ID` ASC) VISIBLE,
+  PRIMARY KEY (`DESCRIPTION_ID`),
+  CONSTRAINT `fk_JOBS_BT_PLANETS1`
+    FOREIGN KEY (`ORIGIN_PLANET_ID`)
+    REFERENCES `outerrim`.`PLANETS` (`PLANET_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_JOBS_ST_PLANETS1`
+    FOREIGN KEY (`DESTINATION_PLANET_ID`)
+    REFERENCES `outerrim`.`PLANETS` (`PLANET_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `outerrim`.`FACTION_REPUTATION_CHANGES_JT`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `outerrim`.`FACTION_REPUTATION_CHANGES_JT` (
+  `FACTION_ID` INT NOT NULL,
+  `CHANGE_AMOUNT` INT NOT NULL,
+  `ENTITY_ID` INT NOT NULL,
+  PRIMARY KEY (`FACTION_ID`, `ENTITY_ID`),
+  INDEX `fk_FACTIONS_has_REPUTATION_CHANGE_ENTITIES_BT_FACTIONS1_idx` (`FACTION_ID` ASC) VISIBLE,
+  INDEX `fk_FACTION_REPUTATION_CHANGES_JT_REPUTATION_CHANGE_ENTITIES_idx` (`ENTITY_ID` ASC) VISIBLE,
+  CONSTRAINT `fk_FACTIONS_has_REPUTATION_CHANGE_ENTITIES_BT_FACTIONS1`
+    FOREIGN KEY (`FACTION_ID`)
+    REFERENCES `outerrim`.`FACTIONS` (`FACTION_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_FACTION_REPUTATION_CHANGES_JT_REPUTATION_CHANGE_ENTITIES_BT1`
+    FOREIGN KEY (`ENTITY_ID`)
+    REFERENCES `outerrim`.`REPUTATION_CHANGE_ENTITIES_BT` (`ENTITY_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `outerrim`.`JOBS`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `outerrim`.`JOBS` (
+  `JOB_ID` INT NOT NULL,
+  `DESCRIPTION_ID` INT NOT NULL,
+  `JOB_STATUS` VARCHAR(45) NOT NULL,
+  `ACCEPTED_AT` DATE NOT NULL,
+  PRIMARY KEY (`JOB_ID`),
+  INDEX `fk_JOBS_JOB_DESCRIPTIONS_ST1_idx` (`DESCRIPTION_ID` ASC) VISIBLE,
+  CONSTRAINT `fk_JOBS_REPUTATION_CHANGE_ENTITIES_BT1`
+    FOREIGN KEY (`JOB_ID`)
+    REFERENCES `outerrim`.`REPUTATION_CHANGE_ENTITIES_BT` (`ENTITY_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_JOBS_JOB_DESCRIPTIONS_ST1`
+    FOREIGN KEY (`DESCRIPTION_ID`)
+    REFERENCES `outerrim`.`JOB_DESCRIPTIONS_ST` (`DESCRIPTION_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `outerrim`.`LOG_HAS_EVENTS_JT`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `outerrim`.`LOG_HAS_EVENTS_JT` (
+  `LOG_ID` INT NOT NULL,
+  `EVENT_ID` INT NOT NULL,
+  PRIMARY KEY (`LOG_ID`, `EVENT_ID`),
+  INDEX `fk_LOGS_has_EVENTS_BT_EVENTS_BT1_idx` (`EVENT_ID` ASC) VISIBLE,
+  INDEX `fk_LOGS_has_EVENTS_BT_LOGS1_idx` (`LOG_ID` ASC) VISIBLE,
+  CONSTRAINT `fk_LOGS_has_EVENTS_BT_LOGS1`
+    FOREIGN KEY (`LOG_ID`)
+    REFERENCES `outerrim`.`LOGS` (`LOG_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_LOGS_has_EVENTS_BT_EVENTS_BT1`
+    FOREIGN KEY (`EVENT_ID`)
+    REFERENCES `outerrim`.`EVENTS_BT` (`EVENT_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+SET SQL_MODE=@OLD_SQL_MODE;
+SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
+SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
